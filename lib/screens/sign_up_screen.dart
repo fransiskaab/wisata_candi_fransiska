@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart'; // Wajib diimport untuk berinteraksi dengan Provider
 
 // Import AuthProvider untuk mengubah status login pengguna setelah berhasil mendaftar
-import 'package:flutter_application_1/providers/auth_provider.dart';
+import 'package:wisata_candi/providers/auth_provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});

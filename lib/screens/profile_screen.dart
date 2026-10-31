@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Wajib diimport untuk berinteraksi dengan Provider
-import 'package:flutter_application_1/widget/profile_info_item.dart';
+import 'package:wisata_candi/widgets/profile_info_item.dart';
 
 // Import semua provider dan screen yang dibutuhkan untuk sinkronisasi data
-import 'package:flutter_application_1/providers/auth_provider.dart';
-import 'package:flutter_application_1/providers/favorite_provider.dart';
-import 'package:flutter_application_1/providers/theme_provider.dart';
-import 'package:flutter_application_1/screens/sign_in_screen.dart';
+import 'package:wisata_candi/providers/auth_provider.dart';
+import 'package:wisata_candi/providers/favorite_provider.dart';
+import 'package:wisata_candi/providers/theme_provider.dart';
+import 'package:wisata_candi/screens/sign_in_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

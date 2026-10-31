@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Wajib diimport untuk mengakses context.watch & context.read
-import 'package:flutter_application_1/models/candi.dart';
+import 'package:wisata_candi/models/candi.dart';
+import 'package:wisata_candi/widgets/cached_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 // Import provider dan profile screen untuk keperluan integrasi state management
-import 'package:flutter_application_1/providers/favorite_provider.dart';
-import 'package:flutter_application_1/screens/profile_screen.dart';
+import 'package:wisata_candi/providers/favorite_provider.dart';
+import 'package:wisata_candi/screens/profile_screen.dart';
 
 class DetailScreen extends StatelessWidget {
   final Candi candi;

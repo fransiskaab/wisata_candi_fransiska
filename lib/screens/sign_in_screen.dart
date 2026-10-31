@@ -3,9 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart'; // Wajib diimport untuk berinteraksi dengan Provider
 
 // Import AuthProvider untuk menyimpan data login secara global
-import 'package:flutter_application_1/providers/auth_provider.dart';
+import 'package:wisata_candi/providers/auth_provider.dart';
 // Wajib diimport agar Navigator bisa mengenali dan membuka halaman SignUpScreen
-import 'package:flutter_application_1/screens/sign_up_screen.dart';
+import 'package:wisata_candi/screens/sign_up_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
