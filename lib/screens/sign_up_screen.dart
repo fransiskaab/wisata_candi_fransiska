@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:provider/provider.dart'; // Wajib diimport untuk berinteraksi dengan Provider
-
-// Import AuthProvider untuk mengubah status login pengguna setelah berhasil mendaftar
-import 'package:wisata_candi/providers/auth_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -13,162 +11,159 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // TODO 1: Deklarasikan variabel
+  // TODO: 1. Deklarasikan variabel
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _fullnameController = TextEditingController();
 
   String _errorText = '';
-  // _isSignedUp dinonaktifkan karena alurnya langsung diarahkan masuk menggunakan AuthProvider global
   bool _obscurePassword = true;
 
-  // Fungsi penanganan proses pendaftaran (Sign Up)
-  void _handleSignUp() {
-    final fullName = _fullnameController.text.trim();
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
+  // TODO: 10. Membuat metode _signUp
+  void _signUp() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String name = _nameController.text.trim();
+    final String username = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
 
-    // Validasi input sederhana
-    if (fullName.isEmpty || username.isEmpty || password.isEmpty) {
+    if (password.length < 8 ||
+        !password.contains(RegExp(r'[A-Z]')) ||
+        !password.contains(RegExp(r'[a-z]')) ||
+        !password.contains(RegExp(r'[0-9]')) ||
+        !password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
       setState(() {
-        _errorText = 'Semua kolom formulir harus diisi!';
+        _errorText =
+        'Minimal 8 karakter, kombinasi [A-Z], [a-z], [0-9], [!@#\\\$%^&*(),.?":{}|<>]';
       });
       return;
     }
 
-    setState(() {
-      _errorText = '';
-    });
+    // TODO: 3. Jika name, username, password tidak kosong lakukan enkripsi
+    if (name.isNotEmpty && username.isNotEmpty && password.isNotEmpty) {
+      final encrypt.Key key = encrypt.Key.fromLength(32);
+      final iv = encrypt.IV.fromLength(16);
 
-    // Otomatis membuat pengguna langsung masuk (Sign In) menggunakan nama yang didaftarkan
-    context.read<AuthProvider>().signIn(username);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final encryptedName = encrypter.encrypt(name, iv: iv);
+      final encryptedUsername = encrypter.encrypt(username, iv: iv);
+      final encryptedPassword = encrypter.encrypt(password, iv: iv);
 
-    // Kembali ke layar sebelumnya (ProfileScreen) dengan status sudah masuk
-    Navigator.pop(context);
+      // Simpan data pengguna di SharedPreferences
+      prefs.setString('fullname', encryptedName.base64);
+      prefs.setString('username', encryptedUsername.base64);
+      prefs.setString('password', encryptedPassword.base64);
+      prefs.setString('key', key.base64);
+      prefs.setString('iv', iv.base64);
+    }
+
+    // Buat navigasi ke SignInScreen
+    Navigator.pushReplacementNamed(context, '/signin');
   }
 
+  // TODO: 11. Membuat metode dispose
   @override
   void dispose() {
+    _nameController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
-    _fullnameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // TODO 2: Pasang AppBar
-      appBar: AppBar(title: const Text('Sign Up')),
-
-      // TODO 3: Pasang body
+      // TODO: 2. Pasang AppBar
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+      ),
+      // TODO: 3. Pasang body
       body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              child: Column(
-                // TODO 4: Atur alignment
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Menampilkan pesan error validasi di atas jika ada
-                  if (_errorText.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        _errorText,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                        ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                child: Column(
+                  // TODO: 4. Atur mainAxisAlignment dan crossAxisAlignment
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // TODO: 5. Pasang TextFormField Nama Lengkap
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: "Nama",
+                        border: OutlineInputBorder(),
                       ),
                     ),
-
-                  // TODO 5: TextFormField nama lengkap
-                  TextFormField(
-                    controller: _fullnameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nama Lengkap',
-                      border: OutlineInputBorder(),
+                    const SizedBox(
+                      height: 20,
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // TODO 5: TextFormField nama pengguna
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nama Pengguna',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // TODO 6: TextFormField kata sandi
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Kata Sandi',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          // Contoh penggunaan Ephemeral State bawaan layar (cukup setState)
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
+                    // TODO: 6. Pasang TextFormField Nama Pengguna
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        labelText: "Nama Pengguna",
+                        border: OutlineInputBorder(),
                       ),
                     ),
-                  ),
-
-                  // TODO 7: ElevatedButton Sign Up
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: _handleSignUp, // Memanggil fungsi pendaftaran saat ditekan
-                    child: const Text('Sign Up'),
-                  ),
-
-                  // TODO 8: TextButton Menuju Sign In jika sudah punya akun
-                  const SizedBox(height: 10),
-                  RichText(
-                    text: TextSpan(
-                      text: 'Sudah punya akun? ',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.deepPurple,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'Masuk di sini.',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              // Kembali ke layar sebelumnya (Layar Sign In)
-                              Navigator.pop(context);
+                    // TODO: 7. Pasang TextFormField Kata Sandi
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                          labelText: "Kata Sandi",
+                          errorText: _errorText.isNotEmpty ? _errorText : null,
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
                             },
-                        ),
-                      ],
+                            icon: Icon(_obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                          )),
+                      obscureText: _obscurePassword,
                     ),
-                  ),
-                ],
+                    // TODO: 8. Pasang ElevatedButton Sign Up
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    ElevatedButton(onPressed: _signUp, child: const Text("Sign Up")),
+                    // TODO: 9. Pasang TextButton Sign In
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // TextButton(
+                    //     onPressed: () {},
+                    //     child: Text('Sudah punya akun? Masuk di sini.')
+                    // ),
+                    RichText(
+                        text: TextSpan(
+                            text: 'Sudah punya akun? ',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.deepPurple,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Masuk di sini.',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 16,
+                                ),
+                                recognizer: TapGestureRecognizer()..onTap = () {},
+                              ),
+                            ]))
+                  ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          )),
     );
   }
 }

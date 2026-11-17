@@ -1,22 +1,12 @@
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'package:wisata_candi/data/candi_data.dart';
-import 'package:wisata_candi/providers/favorite_provider.dart';
-import 'package:wisata_candi/screens/detail_screen.dart';
+import 'package:wisata_candi/screens/home_screen.dart';
+import 'package:wisata_candi/screens/main_screen.dart';
+import 'package:wisata_candi/screens/search_screen.dart';
+import 'package:wisata_candi/screens/sign_in_screen.dart';
+import 'package:wisata_candi/screens/sign_up_screen.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => FavoriteProvider(),
-        ),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,14 +15,30 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Wisata Candi',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+        appBarTheme: const AppBarTheme(
+          iconTheme: IconThemeData(color: Colors.deepPurple),
+          titleTextStyle: TextStyle(
+            color: Colors.deepPurple,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple).copyWith(
+          primary: Colors.deepPurple,
+          surface: Colors.deepPurple[50],
         ),
         useMaterial3: true,
       ),
-      home: DetailScreen(candi: candiList[0]),
+      home: MainScreen(),
+      initialRoute: '/',
+      routes: {
+        '/homescreen': (context) => const HomeScreen(),
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(),
+      },
     );
   }
 }
